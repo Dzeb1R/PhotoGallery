@@ -1,5 +1,6 @@
 package com.example.geoquiz
 
+import android.app.Dialog
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -22,12 +23,14 @@ class MainActivity : AppCompatActivity() {
         Question(R.string.question_americas, true),
         Question(R.string.question_asia, true))
     private var currentIndex = 0
+    private var correctChek = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate(Bundle?) called")
         if (savedInstanceState != null) {
             currentIndex = savedInstanceState.getInt("saveIndex", 0)
-            }
+            correctChek = savedInstanceState.getInt("saveAnswer", 0)
+        }
         setContentView(R.layout.activity_main)
 
         trueButton = findViewById(R.id.true_button)
@@ -76,6 +79,7 @@ class MainActivity : AppCompatActivity() {
     private fun checkAnswer(userAnswer: Boolean) {
         val correctAnswer = questionBank[currentIndex].answer
         val messageResId = if (userAnswer == correctAnswer) {
+            correctChek++
             R.string.correct_toast
         } else {
             R.string.incorrect_toast
@@ -88,11 +92,27 @@ class MainActivity : AppCompatActivity() {
 
         if (currentIndex == questionBank.size-1){
             nextButton.visibility = View.INVISIBLE
+            showCustomDialog(correctChek.toString())
+        }
+    }
+    private fun showCustomDialog(data: String) {
+        val dialogBinding = layoutInflater.inflate(R.layout.activity_modal, null)
+        val myDialog = Dialog(this)
+        myDialog.setContentView(dialogBinding)
+        myDialog.setCancelable(true)
+        myDialog.show()
+        val resultText = myDialog.findViewById<TextView>(R.id.result_text)
+        val str = "Правильно " + data + " вопросов из " + questionBank.size
+        resultText.text = str
+        val okButton = dialogBinding.findViewById<Button>(R.id.ok_button)
+        okButton.setOnClickListener {
+            myDialog.dismiss()
         }
     }
     override fun onSaveInstanceState(savedInstanceState: Bundle) {
         super.onSaveInstanceState(savedInstanceState)
         Log.d(TAG,"onSaveInstanceState() called")
         savedInstanceState.putInt("saveIndex", currentIndex)
+        savedInstanceState.putInt("saveAnswer", correctChek)
     }
 }
