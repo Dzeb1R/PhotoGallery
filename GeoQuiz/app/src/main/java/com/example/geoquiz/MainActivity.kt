@@ -25,6 +25,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate(Bundle?) called")
+        if (savedInstanceState != null) {
+            currentIndex = savedInstanceState.getInt("saveIndex", 0)
+            }
         setContentView(R.layout.activity_main)
 
         trueButton = findViewById(R.id.true_button)
@@ -80,5 +83,9 @@ class MainActivity : AppCompatActivity() {
             Toast.LENGTH_SHORT)
             .show()
     }
-
+    override fun onSaveInstanceState(savedInstanceState: Bundle) {
+        super.onSaveInstanceState(savedInstanceState)
+        Log.d(TAG,"onSaveInstanceState() called")
+        savedInstanceState.putInt("saveIndex", currentIndex)
+    }
 }
