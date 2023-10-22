@@ -1,6 +1,7 @@
 package com.example.geoquiz
 
 import android.app.Dialog
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -52,7 +53,8 @@ class MainActivity : AppCompatActivity() {
             updateQuestion()
         }
         cheatButton.setOnClickListener {
-
+            val answerIsTrue = quizViewModel.currentQuestionAnswer
+            val intent = CheatActivity.newIntent(this@MainActivity, answerIsTrue)
         }
         updateQuestion()
     }
