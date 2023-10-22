@@ -17,23 +17,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var falseButton: Button
     private lateinit var nextButton: Button
     private lateinit var questionTextView: TextView
-
-    private val questionBank = listOf(
-        Question(R.string.question_australia, true),
-        Question(R.string.question_oceans, true),
-        Question(R.string.question_mideast, false),
-        Question(R.string.question_africa, false),
-        Question(R.string.question_americas, true),
-        Question(R.string.question_asia, true))
-    private var currentIndex = 0
-    private var correctChek = 0
+    private val quizViewModel: QuizViewModel by
+    lazy {
+        ViewModelProviders.of(this).get(QuizViewModel::class.java)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate(Bundle?) called")
-        if (savedInstanceState != null) {
-            currentIndex = savedInstanceState.getInt("saveIndex", 0)
-            correctChek = savedInstanceState.getInt("saveAnswer", 0)
-        }
         setContentView(R.layout.activity_main)
         val provider: ViewModelProvider = ViewModelProviders.of(this)
         val quizViewModel = provider.get(QuizViewModel::class.java)
@@ -49,7 +39,8 @@ class MainActivity : AppCompatActivity() {
         falseButton.setOnClickListener { view: View ->
             checkAnswer(false)
         }
-        nextButton.setOnClickListener { currentIndex = (currentIndex + 1) % questionBank.size
+        nextButton.setOnClickListener {
+            quizViewModel.moveToNext()
             updateQuestion()
         }
         updateQuestion()
@@ -76,15 +67,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateQuestion() {
-        val questionTextResId = questionBank[currentIndex].textResId
+        val questionTextResId = quizViewModel.currentQuestionText
         questionTextView.setText(questionTextResId)
         trueButton.visibility = View.VISIBLE
         falseButton.visibility = View.VISIBLE
     }
     private fun checkAnswer(userAnswer: Boolean) {
-        val correctAnswer = questionBank[currentIndex].answer
+        val correctAnswer = quizViewModel.currentQuestionAnswer
         val messageResId = if (userAnswer == correctAnswer) {
-            correctChek++
+            quizViewModel.chekUpdate()
             R.string.correct_toast
         } else {
             R.string.incorrect_toast
@@ -95,9 +86,9 @@ class MainActivity : AppCompatActivity() {
         trueButton.visibility = View.INVISIBLE
         falseButton.visibility = View.INVISIBLE
 
-        if (currentIndex == questionBank.size-1){
+        if (quizViewModel.currentIndex == quizViewModel.questionBank.size-1){
             nextButton.visibility = View.INVISIBLE
-            showCustomDialog(correctChek.toString())
+            showCustomDialog(quizViewModel.correctChek.toString())
         }
     }
     private fun showCustomDialog(data: String) {
@@ -107,7 +98,7 @@ class MainActivity : AppCompatActivity() {
         myDialog.setCancelable(true)
         myDialog.show()
         val resultText = myDialog.findViewById<TextView>(R.id.result_text)
-        val str = "Правильно " + data + " вопросов из " + questionBank.size
+        val str = "Правильно " + data + " вопросов из " + quizViewModel.questionBank.size
         resultText.text = str
         val okButton = dialogBinding.findViewById<Button>(R.id.ok_button)
         okButton.setOnClickListener {
@@ -116,8 +107,6 @@ class MainActivity : AppCompatActivity() {
     }
     override fun onSaveInstanceState(savedInstanceState: Bundle) {
         super.onSaveInstanceState(savedInstanceState)
-        Log.d(TAG,"onSaveInstanceState() called")
-        savedInstanceState.putInt("saveIndex", currentIndex)
-        savedInstanceState.putInt("saveAnswer", correctChek)
+
     }
 }
