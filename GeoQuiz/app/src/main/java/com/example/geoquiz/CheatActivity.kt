@@ -9,8 +9,8 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 
-const val EXTRA_ANSWER_SHOWN = "com.bignerdranch.android.geoquiz.answer_shown"
-private const val EXTRA_ANSWER_IS_TRUE = "com.bignerdranch.android.geoquiz.answer_is_true"
+const val EXTRA_ANSWER_SHOWN = "com.example.geoquiz.answer_shown"
+private const val EXTRA_ANSWER_IS_TRUE = "com.example.geoquiz.answer_is_true"
 
 @Suppress("DEPRECATION")
 class CheatActivity : AppCompatActivity() {

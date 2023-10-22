@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProviders
 private const val TAG = "MainActivity"
 private const val KEY_INDEX1 = "currentIndex"
 private const val KEY_INDEX2 = "correctChek"
+private const val KEY_INDEX4 = "currentCheater"
 private const val REQUEST_CODE_CHEAT = 0
 
 @Suppress("DEPRECATION")
@@ -37,8 +38,9 @@ class MainActivity : AppCompatActivity() {
         quizViewModel.currentIndex = currentIndex
         val correctChek = savedInstanceState?.getInt(KEY_INDEX2, 0) ?: 0
         quizViewModel.correctChek = correctChek
-        val provider: ViewModelProvider = ViewModelProviders.of(this)
-        val quizViewModel = provider.get(QuizViewModel::class.java)
+        val currentCheater = savedInstanceState?.getInt(KEY_INDEX4, 0) ?: 0
+        quizViewModel.currentCheater = currentCheater
+
         Log.d(TAG, "Got a QuizViewModel:$quizViewModel")
         trueButton = findViewById(R.id.true_button)
         falseButton = findViewById(R.id.false_button)
@@ -57,9 +59,17 @@ class MainActivity : AppCompatActivity() {
             updateQuestion()
         }
         cheatButton.setOnClickListener {
-            val answerIsTrue = quizViewModel.currentQuestionAnswer
-            val intent = CheatActivity.newIntent(this@MainActivity, answerIsTrue)
-            startActivityForResult(intent, REQUEST_CODE_CHEAT)
+            if (quizViewModel.currentCheater < 3)
+            {
+                val answerIsTrue = quizViewModel.currentQuestionAnswer
+                val intent = CheatActivity.newIntent(this@MainActivity, answerIsTrue)
+                startActivityForResult(intent, REQUEST_CODE_CHEAT)
+                quizViewModel.cheaterUpdate()
+            }
+            else {
+                Toast.makeText(this, R.string.judgment_toast, Toast.LENGTH_SHORT).show()
+            }
+            cheatButton.visibility = View.INVISIBLE
         }
         updateQuestion()
     }
@@ -92,6 +102,7 @@ class MainActivity : AppCompatActivity() {
         Log.i(TAG, "onSaveInstanceState")
         savedInstanceState.putInt(KEY_INDEX1, quizViewModel.currentIndex)
         savedInstanceState.putInt(KEY_INDEX2, quizViewModel.correctChek)
+        savedInstanceState.putInt(KEY_INDEX4, quizViewModel.currentCheater)
     }
     override fun onStop() {
         super.onStop()
@@ -108,16 +119,17 @@ class MainActivity : AppCompatActivity() {
         trueButton.visibility = View.VISIBLE
         falseButton.visibility = View.VISIBLE
         quizViewModel.isCheater = false
+        cheatButton.visibility = View.VISIBLE
     }
     private fun checkAnswer(userAnswer: Boolean) {
         val correctAnswer = quizViewModel.currentQuestionAnswer
-        val messageResId = when {
-            quizViewModel.isCheater -> R.string.judgment_toast
-            userAnswer == correctAnswer -> {
-                quizViewModel.chekUpdate()
-                R.string.correct_toast}
-            else -> R.string.incorrect_toast
+        val messageResId = if (userAnswer == correctAnswer)
+        {
+            quizViewModel.chekUpdate()
+            R.string.correct_toast
         }
+        else
+            R.string.incorrect_toast
         Toast.makeText(this, messageResId,
             Toast.LENGTH_SHORT)
             .show()
