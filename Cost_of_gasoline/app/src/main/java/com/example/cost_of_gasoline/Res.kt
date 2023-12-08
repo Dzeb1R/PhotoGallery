@@ -7,7 +7,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 
-private const val ANSWER_SHOWN = "com.bignerdranch.android.example.cost_of_gasoline.answer_shown"
+private const val ANSWER_SHOWN = "com.example.cost_of_gasoline.answer_shown"
 class Res : AppCompatActivity() {
     private var res = "0"
     private lateinit var answer: TextView
@@ -25,7 +25,7 @@ class Res : AppCompatActivity() {
     }
     companion object {
         fun newIntent(packageContext: Context, res: String): Intent {
-            return Intent(packageContext, Result::class.java).apply {
+            return Intent(packageContext, Res::class.java).apply {
                 putExtra(ANSWER_SHOWN, res)
             }
         }

@@ -27,16 +27,21 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         liters_input = findViewById(R.id.liters_input)
         ok_button = findViewById(R.id.ok_button)
+
         gasoline92 = findViewById(R.id.radio92)
         gasoline92.setOnClickListener(radioButtonClickListener)
         gasoline92.isChecked = true
+
         gasoline95 = findViewById(R.id.radio95)
         gasoline95.setOnClickListener(radioButtonClickListener)
+
         gasoline98 = findViewById(R.id.radio98)
         gasoline98.setOnClickListener(radioButtonClickListener)
+
         if (savedInstanceState != null) {
             liters_input.append(savedInstanceState.getString(KEY_INDEX1, ""))
         }
+
         ok_button.setOnClickListener {
             if (liters_input.text.toString() == "")
             {
@@ -46,7 +51,7 @@ class MainActivity : AppCompatActivity() {
             {
                 liters = liters_input.text.toString()
                 val res = liters.toFloat()*kurs
-                str = "Цена за $liters литра(ов) бензина = $res"
+                str = "Цена за $liters литра(ов) бензина = $res руб."
                 val intent = Res.newIntent(this@MainActivity, str)
                 startActivity(intent)
             }
