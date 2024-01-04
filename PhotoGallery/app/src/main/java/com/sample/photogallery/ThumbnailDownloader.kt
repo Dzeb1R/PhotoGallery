@@ -22,26 +22,28 @@ class ThumbnailDownloader<in T>(
 
     val fragmentLifecycleObserver: LifecycleObserver =
         object : LifecycleObserver {
+
             @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
             fun setup() {
                 Log.i(TAG, "Starting background thread")
                         start()
                         looper
             }
+
             @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
             fun tearDown() {
                 Log.i(TAG, "Destroying background thread")
                         quit()
             }
         }
-    val viewLifecycleObserver:
-            LifecycleObserver =
+    val viewLifecycleObserver: LifecycleObserver =
         object : LifecycleObserver {
+
             @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-            fun clearQueue() {
+            fun tearDown() {
                 Log.i(TAG, "Clearing all requests from queue")
-                        requestHandler.removeMessages(MESSAGE_DOWNLOAD)
-                        requestMap.clear()
+                requestHandler.removeMessages(MESSAGE_DOWNLOAD)
+                requestMap.clear()
             }
         }
 
@@ -49,6 +51,7 @@ class ThumbnailDownloader<in T>(
     private lateinit var requestHandler: Handler
     private val requestMap = ConcurrentHashMap<T, String>()
     private val flickrFetchr = FlickrFetchr()
+
     @Suppress("UNCHECKED_CAST")
     @SuppressLint("HandlerLeak")
     override fun onLooperPrepared() {
@@ -72,11 +75,17 @@ class ThumbnailDownloader<in T>(
     {
         Log.i(TAG, "Got a URL: $url")
         requestMap[target] = url
-        requestHandler.obtainMessage(MESSAGE_DOWNLOAD, target).sendToTarget()
+        requestHandler.obtainMessage(MESSAGE_DOWNLOAD, target)
+            .sendToTarget()
+    }
+    fun clearQueue() {
+        requestHandler.removeMessages(MESSAGE_DOWNLOAD)
+        requestMap.clear()
     }
     private fun handleRequest(target: T) {
         val url = requestMap[target] ?: return
         val bitmap = flickrFetchr.fetchPhoto(url) ?: return
+
         responseHandler.post(Runnable {
             if (requestMap[target] != url || hasQuit) {
                 return@Runnable
